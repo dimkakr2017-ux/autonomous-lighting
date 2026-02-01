@@ -1,26 +1,44 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Autonomous Lighting System</title>
+    <title>Калькулятор системы освещения</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            margin-top: 50px;
+            padding: 100px;
+            background-color: #f5f5f5;
         }
         h1 {
             color: #2c3e50;
+            font-size: 28px;
+            margin-bottom: 50px;
         }
-        p {
+        button {
+            padding: 15px 30px;
             font-size: 18px;
-            color: #34495e;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #2980b9;
         }
     </style>
 </head>
 <body>
-    <h1>Autonomous Lighting System</h1>
-    <p>This is a test page for your GitHub Pages site.</p>
+    <h1>Калькулятор расчета потребления системы освещения с активно-адаптивным регулированием светового потока</h1>
+    <button onclick="startCalculation()">Начать расчет</button>
+
+    <script>
+        function startCalculation() {
+            // Здесь позже будет переход к форме ввода параметров
+            alert("Переход к форме ввода параметров пока не реализован.");
+        }
+    </script>
 </body>
 </html>
