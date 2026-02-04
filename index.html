@@ -1,44 +1,292 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Калькулятор системы освещения</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 100px;
-            background-color: #f5f5f5;
-        }
-        h1 {
-            color: #2c3e50;
-            font-size: 28px;
-            margin-bottom: 50px;
-        }
-        button {
-            padding: 15px 30px;
-            font-size: 18px;
-            background-color: #3498db;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #2980b9;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Калькулятор системы освещения</title>
+<style>
+body { font-family: Arial, sans-serif; margin: 20px; }
+label { font-weight: bold; }
+canvas { border: 1px solid #000; margin-bottom: 30px; }
+table { border-collapse: collapse; margin-top: 20px; }
+th, td { border: 1px solid #000; padding: 6px 10px; text-align: center; }
+th { background: #eee; }
+</style>
 </head>
-<body>
-    <h1>Калькулятор расчета потребления системы освещения с активно-адаптивным регулированием светового потока</h1>
-    <button onclick="startCalculation()">Начать расчет</button>
 
-    <script>
-        function startCalculation() {
-            // Здесь позже будет переход к форме ввода параметров
-            alert("Переход к форме ввода параметров пока не реализован.");
+<body>
+
+<h1>Калькулятор системы освещения</h1>
+
+<h2>Исходные данные</h2>
+
+<label>Длина помещения a, м</label><br>
+<input type="number" id="roomLength" value="4"><br><br>
+
+<label>Ширина помещения b, м</label><br>
+<input type="number" id="roomWidth" value="3"><br><br>
+
+<label>Высота помещения c, м</label><br>
+<input type="number" id="roomHeight" value="3"><br><br>
+
+<label>Количество окон</label><br>
+<input type="number" id="windowCount" value="2"><br><br>
+
+<label>Ширина окна, м</label><br>
+<input type="number" id="windowWidth" value="1"><br><br>
+
+<label>Высота окна, м</label><br>
+<input type="number" id="windowHeight" value="1.5"><br><br>
+
+<label>Высота низа окна от пола, м</label><br>
+<input type="number" id="windowBottomHeight" value="1"><br><br>
+
+<label>Отступ до первого окна, м</label><br>
+<input type="number" id="windowStart" value="0.5"><br><br>
+
+<label>Расстояние между окнами, м</label><br>
+<input type="number" id="windowSpacing" value="0.5"><br><br>
+
+<label>Мощность одного светильника Pуст, Вт</label><br>
+<input type="number" id="luminairePower" value="240"><br><br>
+
+<label>Количество светильников</label><br>
+<input type="number" id="luminaireCount" value="4"><br><br>
+
+<label>Нормируемая освещенность Eнорм, лк</label><br>
+<input type="number" id="normIlluminance" value="500"><br><br>
+
+<label>Высота рабочей поверхности, м</label><br>
+<input type="number" id="workPlaneHeight" value="0.8"><br><br>
+
+<label>Нормативная наружная освещенность Eнар</label><br>
+<select id="externalIlluminance">
+<option value="10000">Условия стандартного неба — 10 000 лк</option>
+<option value="17000">Обычная освещенность летом в полдень — 17 000 лк</option>
+<option value="12000">В облачную погоду летом — 12 000 лк</option>
+<option value="5000">Обычная освещенность зимой — 5 000 лк</option>
+<option value="1500">На открытом месте в пасмурный день — 1500 лк</option>
+<option value="1000">Восход и заход Солнца — 1000 лк</option>
+</select><br><br>
+
+<button onclick="run()">Построить</button>
+
+<hr>
+
+<h2>Вид сверху (плановые углы)</h2>
+<canvas id="topView" width="700" height="450"></canvas>
+
+<h2>Вид сбоку (вертикальные углы)</h2>
+<canvas id="sideView" width="700" height="450"></canvas>
+
+<h2>Таблица расчёта КЕО</h2>
+<div id="keoTable"></div>
+
+<h2>Энергетический расчёт по расчетным точкам</h2>
+<div id="energyTable"></div>
+
+<script>
+let topAngles = [];
+let sideAnglesByRow = [];
+
+function calculateKeo(alphaSide, alphaTopArray){
+    const n1 = alphaSide * 0.56;
+    const n2 = alphaTopArray.reduce((s,a)=>s+a,0) * 0.56;
+    return 0.01 * n1 * n2;
+}
+
+function run(){
+    const data = {
+        room:{length:+roomLength.value,width:+roomWidth.value,height:+roomHeight.value},
+        windows:{
+            count:+windowCount.value,width:+windowWidth.value,
+            height:+windowHeight.value,bottom:+windowBottomHeight.value,
+            start:+windowStart.value,spacing:+windowSpacing.value
+        },
+        lighting:{count:+luminaireCount.value},
+        workPlane:{height:+workPlaneHeight.value},
+        externalIlluminance:+externalIlluminance.value,
+        normIlluminance:+normIlluminance.value,
+        luminairePower:+luminairePower.value
+    };
+
+    topAngles = drawTopView(data);
+    sideAnglesByRow = drawSideView(data);
+    buildKeoTable(data);
+    buildEnergyTable(data);
+}
+
+// ---------- ВИД СВЕРХУ ----------
+function drawTopView(data){
+    const ctx = topView.getContext("2d");
+    ctx.clearRect(0,0,topView.width,topView.height);
+
+    const s=90, ox=60, oy=60;
+    ctx.strokeRect(ox,oy,data.room.length*s,data.room.width*s);
+
+    let windows=[];
+    for(let i=0;i<data.windows.count;i++){
+        const xA=ox+(data.windows.start+i*(data.windows.width+data.windows.spacing))*s;
+        const xB=xA+data.windows.width*s;
+        ctx.fillStyle="lightblue";
+        ctx.fillRect(xA,oy-8,data.windows.width*s,8);
+        windows.push({A:{x:xA,y:oy},B:{x:xB,y:oy}});
+    }
+
+    const cols=2;
+    const rows=Math.ceil(data.lighting.count/cols);
+    let angles=[];
+    let idx=0;
+
+    for(let r=0;r<rows;r++){
+        for(let c=0;c<cols;c++){
+            if(idx>=data.lighting.count) break;
+
+            const P={
+                x:ox+(c+1)*data.room.length*s/(cols+1),
+                y:oy+(r+1)*data.room.width*s/(rows+1)
+            };
+
+            ctx.fillStyle="green";
+            ctx.beginPath(); ctx.arc(P.x,P.y,5,0,Math.PI*2); ctx.fill();
+            ctx.fillText("P"+(idx+1),P.x-6,P.y-10);
+
+            let a=[];
+            windows.forEach((w,j)=>{
+                ctx.strokeStyle="red";
+                ctx.beginPath(); ctx.moveTo(P.x,P.y); ctx.lineTo(w.A.x,w.A.y); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(P.x,P.y); ctx.lineTo(w.B.x,w.B.y); ctx.stroke();
+
+                const PA=Math.hypot(P.x-w.A.x,P.y-w.A.y);
+                const PB=Math.hypot(P.x-w.B.x,P.y-w.B.y);
+                const AB=Math.hypot(w.B.x-w.A.x,w.B.y-w.A.y);
+                const deg=Math.acos((PA*PA+PB*PB-AB*AB)/(2*PA*PB))*180/Math.PI;
+                a.push(deg);
+
+                ctx.fillStyle="red";
+                ctx.fillText("α="+deg.toFixed(1)+"°",P.x+6,P.y+14+12*j);
+            });
+
+            angles[idx]=a;
+            idx++;
         }
-    </script>
+    }
+    return angles;
+}
+
+// ---------- ВИД СБОКУ ----------
+function drawSideView(data){
+    const ctx=sideView.getContext("2d");
+    ctx.clearRect(0,0,sideView.width,sideView.height);
+
+    const sx=90, sy=90, ox=80, oy=40;
+    ctx.strokeRect(ox,oy,data.room.length*sx,data.room.height*sy);
+
+    const Q={x:ox,y:oy+(data.room.height-data.windows.bottom-data.windows.height)*sy};
+    const W={x:ox,y:Q.y+data.windows.height*sy};
+    ctx.fillStyle="lightblue";
+    ctx.fillRect(ox,Q.y,18,data.windows.height*sy);
+
+    const rows=Math.ceil(data.lighting.count/2);
+    const step=data.room.length*sx/(rows+1);
+    let sideAngles=[];
+
+    for(let r=0;r<rows;r++){
+        const x=ox+(r+1)*step;
+        const P={x,y:oy+(data.room.height-data.workPlane.height)*sy};
+
+        ctx.fillStyle="green";
+        ctx.beginPath(); ctx.arc(P.x,P.y,4,0,Math.PI*2); ctx.fill();
+        ctx.fillText("P"+(r+1),P.x-6,P.y+15);
+
+        ctx.strokeStyle="red";
+        ctx.beginPath(); ctx.moveTo(P.x,P.y); ctx.lineTo(Q.x,Q.y); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(P.x,P.y); ctx.lineTo(W.x,W.y); ctx.stroke();
+
+        const PQ=Math.hypot(P.x-Q.x,P.y-Q.y);
+        const PW=Math.hypot(P.x-W.x,P.y-W.y);
+        const QW=Math.hypot(Q.x-W.x,Q.y-W.y);
+        const deg=Math.acos((PQ*PQ+PW*PW-QW*QW)/(2*PQ*PW))*180/Math.PI;
+
+        ctx.fillStyle="red";
+        ctx.fillText("αᵥ="+deg.toFixed(1)+"°",P.x+10,P.y-10);
+        sideAngles[r]=deg;
+    }
+    return sideAngles;
+}
+
+// ---------- ТАБЛИЦА КЕО ----------
+function buildKeoTable(data){
+    const cols=2;
+    let html = `
+    <table>
+        <tr>
+            <th>Точка</th>
+            <th>αᵥ, °</th>
+            <th>Σαₚ, °</th>
+            <th>КЕО, %</th>
+        </tr>`;
+
+    for(let i=0;i<data.lighting.count;i++){
+        const row=Math.floor(i/cols);
+        const alphaSide=sideAnglesByRow[row];
+        const sumTop=topAngles[i].reduce((s,a)=>s+a,0);
+        const keo=calculateKeo(alphaSide,topAngles[i]);
+
+        html+=`
+        <tr>
+            <td>P${i+1}</td>
+            <td>${alphaSide.toFixed(1)}</td>
+            <td>${sumTop.toFixed(1)}</td>
+            <td>${keo.toFixed(3)}</td>
+        </tr>`;
+    }
+
+    html += "</table>";
+    keoTable.innerHTML = html;
+}
+
+// ---------- ЭНЕРГЕТИЧЕСКАЯ ТАБЛИЦА ----------
+function buildEnergyTable(data){
+    const cols=2;
+
+    let html = `
+    <table>
+        <tr>
+            <th>Точка</th>
+            <th>КЕО, %</th>
+            <th>Eест, лк</th>
+            <th>Eискус, лк</th>
+            <th>k</th>
+            <th>Pфакт, Вт</th>
+        </tr>`;
+
+    for(let i=0;i<data.lighting.count;i++){
+
+        const row=Math.floor(i/cols);
+        const alphaSide=sideAnglesByRow[row];
+        const keo=calculateKeo(alphaSide,topAngles[i]);
+
+        const Eest = (keo/100)*data.externalIlluminance;
+        const Eiskus = data.normIlluminance - Eest;
+        const k = Eiskus / data.normIlluminance;
+        const Pfact = data.luminairePower * k;
+
+        html+=`
+        <tr>
+            <td>P${i+1}</td>
+            <td>${keo.toFixed(3)}</td>
+            <td>${Eest.toFixed(1)}</td>
+            <td>${Eiskus.toFixed(1)}</td>
+            <td>${k.toFixed(3)}</td>
+            <td>${Pfact.toFixed(1)}</td>
+        </tr>`;
+    }
+
+    html += "</table>";
+    energyTable.innerHTML = html;
+}
+</script>
+
 </body>
 </html>
