@@ -5,71 +5,171 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Калькулятор системы освещения</title>
 <style>
-body { font-family: Arial, sans-serif; margin: 20px; }
-label { font-weight: bold; }
-canvas { border: 1px solid #000; margin-bottom: 30px; }
-table { border-collapse: collapse; margin-top: 20px; }
-th, td { border: 1px solid #000; padding: 6px 10px; text-align: center; }
-th { background: #eee; }
-</style>
-</head>
+/* Общие стили */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f5f5;
+    margin: 0;
+    padding: 20px;
+    text-align: center;
+}
 
+h1 {
+    color: #2c3e50;
+    font-size: 32px;
+    margin-bottom: 30px;
+}
+
+/* Карточка формы */
+.form-container {
+    background-color: #fff;
+    max-width: 600px;
+    margin: 0 auto 30px auto;
+    padding: 30px 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    text-align: left;
+}
+
+/* Метки и поля */
+label {
+    display: block;
+    font-weight: 600;
+    margin-top: 15px;
+    margin-bottom: 5px;
+}
+
+input[type="number"], select, input[type="text"] {
+    width: 100%;
+    max-width: 200px;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    transition: 0.2s;
+}
+
+input[type="number"]:focus, select:focus, input[type="text"]:focus {
+    border-color: #2980b9;
+    box-shadow: 0 0 6px rgba(41, 128, 185,0.3);
+    outline: none;
+}
+
+/* Кнопка */
+button {
+    padding: 12px 30px;
+    font-size: 18px;
+    background-color: #c72222;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-top: 20px;
+}
+
+button:hover {
+    background-color: #2980b9;
+    transform: scale(1.05);
+}
+
+/* Таблицы */
+table {
+    border-collapse: collapse;
+    margin: 20px auto;
+    width: 90%;
+    max-width: 900px;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+}
+
+th, td {
+    padding: 10px 12px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #2980b9;
+    color: white;
+    font-weight: 600;
+}
+
+tr:nth-child(even) td {
+    background-color: #f9f9f9;
+}
+
+tr:hover td {
+    background-color: #f1f7ff;
+}
+</style>
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.2.0"></script>
+</head>
 <body>
 
 <h1>Калькулятор системы освещения</h1>
 
+<div class="form-container">
 <h2>Исходные данные</h2>
 
-<label>Длина помещения a, м</label><br>
-<input type="number" id="roomLength" value="4"><br><br>
+<label>Длина помещения a, м</label>
+<input type="number" id="roomLength" value="4">
 
-<label>Ширина помещения b, м</label><br>
-<input type="number" id="roomWidth" value="3"><br><br>
+<label>Ширина помещения b, м</label>
+<input type="number" id="roomWidth" value="3">
 
-<label>Высота помещения c, м</label><br>
-<input type="number" id="roomHeight" value="3"><br><br>
+<label>Высота помещения c, м</label>
+<input type="number" id="roomHeight" value="3">
 
-<label>Количество окон</label><br>
-<input type="number" id="windowCount" value="2"><br><br>
+<label>Количество окон</label>
+<input type="number" id="windowCount" value="2">
 
-<label>Ширина окна, м</label><br>
-<input type="number" id="windowWidth" value="1"><br><br>
+<label>Ширина окна, м</label>
+<input type="number" id="windowWidth" value="1">
 
-<label>Высота окна, м</label><br>
-<input type="number" id="windowHeight" value="1.5"><br><br>
+<label>Высота окна, м</label>
+<input type="number" id="windowHeight" value="1.5">
 
-<label>Высота низа окна от пола, м</label><br>
-<input type="number" id="windowBottomHeight" value="1"><br><br>
+<label>Высота низа окна от пола, м</label>
+<input type="number" id="windowBottomHeight" value="1">
 
-<label>Отступ до первого окна, м</label><br>
-<input type="number" id="windowStart" value="0.5"><br><br>
+<label>Отступ до первого окна, м</label>
+<input type="number" id="windowStart" value="0.5">
 
-<label>Расстояние между окнами, м</label><br>
-<input type="number" id="windowSpacing" value="0.5"><br><br>
+<label>Расстояние между окнами, м</label>
+<input type="number" id="windowSpacing" value="0.5">
 
-<label>Мощность одного светильника Pуст, Вт</label><br>
-<input type="number" id="luminairePower" value="240"><br><br>
+<label>Мощность одного светильника Pуст, Вт</label>
+<input type="number" id="luminairePower" value="40">
 
-<label>Количество светильников</label><br>
-<input type="number" id="luminaireCount" value="4"><br><br>
+<label>Количество светильников</label>
+<input type="number" id="luminaireCount" value="4">
 
-<label>Нормируемая освещенность Eнорм, лк</label><br>
-<input type="number" id="normIlluminance" value="500"><br><br>
+<label>Нормируемая освещенность Eнорм, лк</label>
+<input type="number" id="normIlluminance" value="500">
 
-<label>Высота рабочей поверхности, м</label><br>
-<input type="number" id="workPlaneHeight" value="0.8"><br><br>
+<label>Высота рабочей поверхности, м</label>
+<input type="number" id="workPlaneHeight" value="0.8">
 
-<label>Нормативная наружная освещенность Eнар</label><br>
-<select id="externalIlluminance">
-<option value="10000">Условия стандартного неба — 10 000 лк</option>
-<option value="17000">Обычная освещенность летом в полдень — 17 000 лк</option>
-<option value="12000">В облачную погоду летом — 12 000 лк</option>
-<option value="5000">Обычная освещенность зимой — 5 000 лк</option>
-<option value="1500">На открытом месте в пасмурный день — 1500 лк</option>
-<option value="1000">Восход и заход Солнца — 1000 лк</option>
-</select><br><br>
+<label>Цена 1 кВт·ч электроэнергии, руб</label>
+<input type="number" id="electricityPrice" value="5" step="0.5">
+
+<label>Начало рабочего дня (час, 0–23)</label>
+<input type="number" id="workStartHour" value="8" step="1" min="0" max="23">
+
+<label>Конец рабочего дня (час, 1–24)</label>
+<input type="number" id="workEndHour" value="17" step="1" min="1" max="24">
+
+<label>Город</label>
+<input type="text" id="city" placeholder="Например: Москва">
+<button onclick="loadCityCoordinates()">Загрузить координаты города</button>
 
 <button onclick="run()">Построить</button>
+</div>
 
 <hr>
 
@@ -85,207 +185,355 @@ th { background: #eee; }
 <h2>Энергетический расчёт по расчетным точкам</h2>
 <div id="energyTable"></div>
 
-<script>
-let topAngles = [];
-let sideAnglesByRow = [];
+<h2>Годовое потребление электроэнергии</h2>
+<details id="yearlyEnergyDetails">
+  <summary>Годовое потребление светильников (клик для раскрытия)</summary>
+  <div id="yearlyTableContainer" style="margin-top:10px;"></div>
+</details>
+<!-- Итоговые показатели (отдельно) -->
+<div id="yearlySummaryContainer" style="margin-top:15px;"></div>
 
-function calculateKeo(alphaSide, alphaTopArray){
-    const n1 = alphaSide * 0.56;
-    const n2 = alphaTopArray.reduce((s,a)=>s+a,0) * 0.56;
-    return 0.01 * n1 * n2;
+<h2>Годовой график потребления с ADL System</h2>
+<canvas id="yearlyChart" width="900" height="400"></canvas>
+
+<!-- Новый блок для NASA -->
+<h2>Данные NASA (почасовая освещённость)</h2>
+<div id="nasaTableContainer"></div>
+<button onclick="showNASATable()">Показать первые 48 часов</button>
+<button onclick="downloadNASAData()">Скачать все данные NASA CSV</button>
+
+
+<script>
+let nasaData=[];
+
+// ---------- Загрузка координат города ----------
+async function loadCityCoordinates(){
+    const city = document.getElementById("city").value.trim();
+    if(!city){ alert("Введите название города"); return; }
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(city)}`;
+    try{
+        const response = await fetch(url);
+        const data = await response.json();
+        if(data.length===0){ alert("Город не найден"); return; }
+        const lat=parseFloat(data[0].lat);
+        const lon=parseFloat(data[0].lon);
+
+        await loadNasaHourlyData(lat, lon, 2019);
+        alert(`Координаты города ${city}: широта ${lat}, долгота ${lon}\nДанные NASA за 2019 год загружены (8760 часов)`);
+    }catch(e){ alert("Ошибка при получении координат города"); console.error(e);}
 }
 
+// ---------- Получение почасовой NASA ----------
+async function loadNasaHourlyData(lat, lon, year=2019){
+    const start=`${year}0101`;
+    const end=`${year}1231`;
+    const url=`https://power.larc.nasa.gov/api/temporal/hourly/point?parameters=ALLSKY_SFC_SW_DWN&community=RE&longitude=${lon}&latitude=${lat}&start=${start}&end=${end}&format=JSON`;
+    try{
+        const response=await fetch(url);
+        const data=await response.json();
+        if(!data.properties || !data.properties.parameter || !data.properties.parameter.ALLSKY_SFC_SW_DWN){
+            alert(`Нет данных NASA за ${year} год`);
+            return;
+        }
+
+        // 1️⃣ Берём данные W/m²
+        let wm2 = Object.values(data.properties.parameter.ALLSKY_SFC_SW_DWN);
+
+        // 2️⃣ Перевод в люксы (~115 лк на 1 Вт/м²)
+        let lux = wm2.map(v => v * 115);
+
+        // 3️⃣ Плавное сглаживание переходов (интерполяция нулей)
+        for(let i=1;i<lux.length-1;i++){
+            if(lux[i] === 0 && lux[i-1]>0 && lux[i+1]>0){
+                lux[i] = (lux[i-1]+lux[i+1])/2;
+            }
+        }
+
+        nasaData = lux;
+        if(nasaData.length!==8760) alert("Внимание: загружено не 8760 часов, а "+nasaData.length);
+        console.log("NASA hourly data загружена", nasaData.length);
+
+    }catch(e){ alert("Ошибка при получении данных NASA"); console.error(e);}
+}
+
+// ---------- Показать первые 48 часов NASA ----------
+function showNASATable(){
+    if(nasaData.length===0){ alert("Нет данных NASA"); return; }
+    const container = document.getElementById("nasaTableContainer");
+    let html = `<table>
+        <tr><th>Час</th><th>Освещённость, лк</th></tr>`;
+    for(let i=0;i<Math.min(48,nasaData.length);i++){
+        html += `<tr><td>${i+1}</td><td>${nasaData[i].toFixed(0)}</td></tr>`;
+    }
+    html += "</table>";
+    container.innerHTML = html;
+}
+
+// ---------- Скачать все данные NASA в CSV ----------
+function downloadNASAData(){
+    if(nasaData.length===0){ alert("Нет данных NASA"); return; }
+    let csvContent = "data:text/csv;charset=utf-8,Hour,Illuminance_lux\n";
+    nasaData.forEach((v,idx)=>{
+        csvContent += `${idx+1},${v.toFixed(0)}\n`;
+    });
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href",encodedUri);
+    link.setAttribute("download","NASA_hourly_data_2019_lux.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+// ---------- RUN ----------
+let topAngles=[], sideAnglesByRow=[];
 function run(){
-    const data = {
+    // Для теста: если NASA нет, подставляем 500 лк
+    if(nasaData.length!==8760){ nasaData = Array(8760).fill(500); console.log("Используем фиктивные данные NASA"); }
+
+    const data={
         room:{length:+roomLength.value,width:+roomWidth.value,height:+roomHeight.value},
-        windows:{
-            count:+windowCount.value,width:+windowWidth.value,
-            height:+windowHeight.value,bottom:+windowBottomHeight.value,
-            start:+windowStart.value,spacing:+windowSpacing.value
-        },
+        windows:{count:+windowCount.value,width:+windowWidth.value,height:+windowHeight.value,bottom:+windowBottomHeight.value,start:+windowStart.value,spacing:+windowSpacing.value},
         lighting:{count:+luminaireCount.value},
         workPlane:{height:+workPlaneHeight.value},
-        externalIlluminance:+externalIlluminance.value,
         normIlluminance:+normIlluminance.value,
-        luminairePower:+luminairePower.value
+        luminairePower:+luminairePower.value,
+        workStartHour:+workStartHour.value,
+        workEndHour:+workEndHour.value,
+        electricityPrice:+electricityPrice.value
     };
 
     topAngles = drawTopView(data);
     sideAnglesByRow = drawSideView(data);
     buildKeoTable(data);
-    buildEnergyTable(data);
+    buildYearEnergyTable(data);
 }
+
 
 // ---------- ВИД СВЕРХУ ----------
 function drawTopView(data){
-    const ctx = topView.getContext("2d");
-    ctx.clearRect(0,0,topView.width,topView.height);
-
-    const s=90, ox=60, oy=60;
-    ctx.strokeRect(ox,oy,data.room.length*s,data.room.width*s);
-
+    const canvas=document.getElementById("topView"), ctx=canvas.getContext("2d");
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    const s=90, ox=60, oy=60; ctx.strokeRect(ox,oy,data.room.length*s,data.room.width*s);
     let windows=[];
     for(let i=0;i<data.windows.count;i++){
         const xA=ox+(data.windows.start+i*(data.windows.width+data.windows.spacing))*s;
         const xB=xA+data.windows.width*s;
-        ctx.fillStyle="lightblue";
-        ctx.fillRect(xA,oy-8,data.windows.width*s,8);
+        ctx.fillStyle="lightblue"; ctx.fillRect(xA,oy-8,data.windows.width*s,8);
         windows.push({A:{x:xA,y:oy},B:{x:xB,y:oy}});
     }
-
-    const cols=2;
-    const rows=Math.ceil(data.lighting.count/cols);
-    let angles=[];
-    let idx=0;
-
-    for(let r=0;r<rows;r++){
-        for(let c=0;c<cols;c++){
-            if(idx>=data.lighting.count) break;
-
-            const P={
-                x:ox+(c+1)*data.room.length*s/(cols+1),
-                y:oy+(r+1)*data.room.width*s/(rows+1)
-            };
-
-            ctx.fillStyle="green";
-            ctx.beginPath(); ctx.arc(P.x,P.y,5,0,Math.PI*2); ctx.fill();
-            ctx.fillText("P"+(idx+1),P.x-6,P.y-10);
-
-            let a=[];
-            windows.forEach((w,j)=>{
-                ctx.strokeStyle="red";
-                ctx.beginPath(); ctx.moveTo(P.x,P.y); ctx.lineTo(w.A.x,w.A.y); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(P.x,P.y); ctx.lineTo(w.B.x,w.B.y); ctx.stroke();
-
-                const PA=Math.hypot(P.x-w.A.x,P.y-w.A.y);
-                const PB=Math.hypot(P.x-w.B.x,P.y-w.B.y);
-                const AB=Math.hypot(w.B.x-w.A.x,w.B.y-w.A.y);
-                const deg=Math.acos((PA*PA+PB*PB-AB*AB)/(2*PA*PB))*180/Math.PI;
-                a.push(deg);
-
-                ctx.fillStyle="red";
-                ctx.fillText("α="+deg.toFixed(1)+"°",P.x+6,P.y+14+12*j);
-            });
-
-            angles[idx]=a;
-            idx++;
-        }
-    }
-    return angles;
+    const cols=2, rows=Math.ceil(data.lighting.count/cols);
+    let angles=[], idx=0;
+    for(let r=0;r<rows;r++){ for(let c=0;c<cols;c++){ if(idx>=data.lighting.count) break;
+        const P={x:ox+(c+1)*data.room.length*s/(cols+1),y:oy+(r+1)*data.room.width*s/(rows+1)};
+        ctx.fillStyle="green"; ctx.beginPath(); ctx.arc(P.x,P.y,5,0,Math.PI*2); ctx.fill(); ctx.fillText("P"+(idx+1),P.x-6,P.y-10);
+        let a=[]; windows.forEach((w,j)=>{
+            ctx.strokeStyle="red"; ctx.beginPath(); ctx.moveTo(P.x,P.y); ctx.lineTo(w.A.x,w.A.y); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(P.x,P.y); ctx.lineTo(w.B.x,w.B.y); ctx.stroke();
+            const PA=Math.hypot(P.x-w.A.x,P.y-w.A.y), PB=Math.hypot(P.x-w.B.x,P.y-w.B.y);
+            const AB=Math.hypot(w.B.x-w.A.x,w.B.y-w.A.y);
+            const deg=Math.acos((PA*PA+PB*PB-AB*AB)/(2*PA*PB))*180/Math.PI; a.push(deg);
+            ctx.fillStyle="red"; ctx.fillText("α="+deg.toFixed(1)+"°",P.x+6,P.y+14+12*j);
+        }); angles[idx]=a; idx++;
+    }} return angles;
 }
 
 // ---------- ВИД СБОКУ ----------
 function drawSideView(data){
-    const ctx=sideView.getContext("2d");
-    ctx.clearRect(0,0,sideView.width,sideView.height);
-
+    const canvas=document.getElementById("sideView"), ctx=canvas.getContext("2d");
+    ctx.clearRect(0,0,canvas.width,canvas.height);
     const sx=90, sy=90, ox=80, oy=40;
     ctx.strokeRect(ox,oy,data.room.length*sx,data.room.height*sy);
-
     const Q={x:ox,y:oy+(data.room.height-data.windows.bottom-data.windows.height)*sy};
     const W={x:ox,y:Q.y+data.windows.height*sy};
-    ctx.fillStyle="lightblue";
-    ctx.fillRect(ox,Q.y,18,data.windows.height*sy);
-
+    ctx.fillStyle="lightblue"; ctx.fillRect(ox,Q.y,18,data.windows.height*sy);
     const rows=Math.ceil(data.lighting.count/2);
-    const step=data.room.length*sx/(rows+1);
-    let sideAngles=[];
-
+    const step=data.room.length*sx/(rows+1); let sideAngles=[];
     for(let r=0;r<rows;r++){
         const x=ox+(r+1)*step;
         const P={x,y:oy+(data.room.height-data.workPlane.height)*sy};
-
-        ctx.fillStyle="green";
-        ctx.beginPath(); ctx.arc(P.x,P.y,4,0,Math.PI*2); ctx.fill();
-        ctx.fillText("P"+(r+1),P.x-6,P.y+15);
-
-        ctx.strokeStyle="red";
-        ctx.beginPath(); ctx.moveTo(P.x,P.y); ctx.lineTo(Q.x,Q.y); ctx.stroke();
+        ctx.fillStyle="green"; ctx.beginPath(); ctx.arc(P.x,P.y,4,0,Math.PI*2); ctx.fill(); ctx.fillText("P"+(r+1),P.x-6,P.y+15);
+        ctx.strokeStyle="red"; ctx.beginPath(); ctx.moveTo(P.x,P.y); ctx.lineTo(Q.x,Q.y); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(P.x,P.y); ctx.lineTo(W.x,W.y); ctx.stroke();
+        const PQ=Math.hypot(P.x-Q.x,P.y-Q.y), PW=Math.hypot(P.x-W.x,P.y-W.y), QW=Math.hypot(Q.x-W.x,Q.y-W.y);
+        const deg=Math.acos((PQ*PQ+PW*PW-QW*QW)/(2*PQ*PW))*180/Math.PI; sideAngles[r]=deg;
+        ctx.fillStyle="red"; ctx.fillText("αᵥ="+deg.toFixed(1)+"°",P.x+10,P.y-10);
+    } return sideAngles;
+}
 
-        const PQ=Math.hypot(P.x-Q.x,P.y-Q.y);
-        const PW=Math.hypot(P.x-W.x,P.y-W.y);
-        const QW=Math.hypot(Q.x-W.x,Q.y-W.y);
-        const deg=Math.acos((PQ*PQ+PW*PW-QW*QW)/(2*PQ*PW))*180/Math.PI;
-
-        ctx.fillStyle="red";
-        ctx.fillText("αᵥ="+deg.toFixed(1)+"°",P.x+10,P.y-10);
-        sideAngles[r]=deg;
-    }
-    return sideAngles;
+// ---------- Функция расчёта КЕО ----------
+function calculateKeo(verticalAnglesArray, topAnglesArray){
+    const n1 = verticalAnglesArray.reduce((sum,a)=>sum+a,0)*0.56;
+    const n2 = topAnglesArray.reduce((sum,a)=>sum+a,0)*0.56;
+    return 0.01*(n1*n2);
 }
 
 // ---------- ТАБЛИЦА КЕО ----------
 function buildKeoTable(data){
-    const cols=2;
-    let html = `
-    <table>
-        <tr>
-            <th>Точка</th>
-            <th>αᵥ, °</th>
-            <th>Σαₚ, °</th>
-            <th>КЕО, %</th>
-        </tr>`;
-
+    const cols=2; let html=`<table><tr><th>Точка</th><th>αᵥ, °</th><th>Σαₚ, °</th><th>КЕО, %</th></tr>`;
     for(let i=0;i<data.lighting.count;i++){
         const row=Math.floor(i/cols);
-        const alphaSide=sideAnglesByRow[row];
+        const alphaSide=[sideAnglesByRow[row]]; // массив для calculateKeo
         const sumTop=topAngles[i].reduce((s,a)=>s+a,0);
-        const keo=calculateKeo(alphaSide,topAngles[i]);
-
-        html+=`
-        <tr>
-            <td>P${i+1}</td>
-            <td>${alphaSide.toFixed(1)}</td>
-            <td>${sumTop.toFixed(1)}</td>
-            <td>${keo.toFixed(3)}</td>
-        </tr>`;
-    }
-
-    html += "</table>";
-    keoTable.innerHTML = html;
+        const keo=calculateKeo(alphaSide, topAngles[i]);
+        html+=`<tr><td>P${i+1}</td><td>${alphaSide[0].toFixed(1)}</td><td>${sumTop.toFixed(1)}</td><td>${keo.toFixed(3)}</td></tr>`;
+    } html+="</table>"; document.getElementById("keoTable").innerHTML=html;
 }
 
-// ---------- ЭНЕРГЕТИЧЕСКАЯ ТАБЛИЦА ----------
-function buildEnergyTable(data){
-    const cols=2;
+function buildYearEnergyTable(data){
+    const tableContainer = document.getElementById("yearlyTableContainer");
+    const summaryContainer = document.getElementById("yearlySummaryContainer");
 
-    let html = `
-    <table>
-        <tr>
-            <th>Точка</th>
-            <th>КЕО, %</th>
-            <th>Eест, лк</th>
-            <th>Eискус, лк</th>
-            <th>k</th>
-            <th>Pфакт, Вт</th>
-        </tr>`;
+    if(!nasaData.length){ 
+        tableContainer.innerHTML = "Нет данных NASA"; 
+        summaryContainer.innerHTML = ""; 
+        return; 
+    }
 
+    const keoValues = [];
+    const cols = 2;
     for(let i=0;i<data.lighting.count;i++){
+        const row = Math.floor(i/cols);
+        const alphaSide = [sideAnglesByRow[row]||45];
+        const topA = topAngles[i]||[45];
+        keoValues.push(calculateKeo(alphaSide, topA));
+    }
+    
+  
 
-        const row=Math.floor(i/cols);
-        const alphaSide=sideAnglesByRow[row];
-        const keo=calculateKeo(alphaSide,topAngles[i]);
+ // ===== Таблица по дням и сбор данных для графика =====
+let dailyWithADL = [];
+let dailyWithoutADL = [];
 
-        const Eest = (keo/100)*data.externalIlluminance;
-        const Eiskus = data.normIlluminance - Eest;
-        const k = Eiskus / data.normIlluminance;
-        const Pfact = data.luminairePower * k;
+let html = "<table border='1' cellspacing='0' cellpadding='4'><tr><th>День</th><th>Потребление с ADL, кВт·ч</th><th>Потребление без ADL, кВт·ч</th></tr>";
+const minPowerFactor = 0.1;
 
-        html+=`
-        <tr>
-            <td>P${i+1}</td>
-            <td>${keo.toFixed(3)}</td>
-            <td>${Eest.toFixed(1)}</td>
-            <td>${Eiskus.toFixed(1)}</td>
-            <td>${k.toFixed(3)}</td>
-            <td>${Pfact.toFixed(1)}</td>
-        </tr>`;
+let totalWithADL = 0;
+let totalWithoutADL = 0;
+
+for(let day=1; day<=365; day++){
+    let dayWhWith = 0;
+    let dayWhWithout = 0;
+
+    for(let hour = data.workStartHour; hour < data.workEndHour; hour++){
+        const idx = (day-1)*24 + (hour-1);
+        const Eext = nasaData[idx] || 0;
+
+        for(let i=0;i<data.lighting.count;i++){
+            // с ADL
+            let PfactWith;
+            if(Eext <=0){
+                PfactWith = data.luminairePower;
+            } else {
+                const requiredFraction = (data.normIlluminance - Eext*keoValues[i]/100)/data.normIlluminance;
+                PfactWith = data.luminairePower * Math.max(minPowerFactor, requiredFraction);
+            }
+            dayWhWith += PfactWith;
+
+            // без ADL
+            dayWhWithout += data.luminairePower;
+        }
     }
 
-    html += "</table>";
-    energyTable.innerHTML = html;
+    // Сохраняем данные по каждому дню для графика
+    dailyWithADL.push(dayWhWith/1000);      // кВт·ч
+    dailyWithoutADL.push(dayWhWithout/1000);
+
+    totalWithADL += dayWhWith;
+    totalWithoutADL += dayWhWithout;
+
+    html += `<tr><td>${day}</td><td>${(dayWhWith/1000).toFixed(3)}</td><td>${(dayWhWithout/1000).toFixed(3)}</td></tr>`;
 }
+
+html += "</table>";
+tableContainer.innerHTML = html;
+
+    // ===== Итоги (отдельно) =====
+    const yearlyCostWith = (totalWithADL/1000) * data.electricityPrice;
+    const yearlyCostWithout = (totalWithoutADL/1000) * data.electricityPrice;
+    const savingsPercent = ((yearlyCostWithout - yearlyCostWith)/yearlyCostWithout)*100;
+
+    summaryContainer.innerHTML = `
+        <div style="padding:10px; border:1px solid #ccc; border-radius:8px; background:#f9f9f9;">
+            <p><b>Годовое потребление с ADL System:</b> ${(totalWithADL/1000).toFixed(2)} кВт·ч</p>
+            <p><b>Годовое потребление без ADL System:</b> ${(totalWithoutADL/1000).toFixed(2)} кВт·ч</p>
+            <p><b>Годовая стоимость с ADL System:</b> ${yearlyCostWith.toFixed(2)} руб</p>
+            <p><b>Годовая стоимость без ADL System:</b> ${yearlyCostWithout.toFixed(2)} руб</p>
+            <p><b>Выгода:</b> ${savingsPercent.toFixed(1)}%</p>
+        </div>
+    `;
+    // ===== Построение графика с ежедневными значениями и подписями месяцев =====
+const ctx = document.getElementById('yearlyChart').getContext('2d');
+
+// Массив дней года
+const days = Array.from({length:365}, (_,i)=>i+1);
+
+// Дни начала каждого месяца (не високосный год)
+const daysInMonth = [31,28,31,30,31,30,31,31,30,31,30,31];
+let monthStartDays = [];
+let counter = 1;
+for(let i=0; i<12; i++){
+    monthStartDays.push(counter);
+    counter += daysInMonth[i];
+}
+const monthLabels = ["Янв","Фев","Мар","Апр","Май","Июн","Июл","Авг","Сен","Окт","Ноя","Дек"];
+
+// Создаём объект для пользовательских меток на оси X
+const xLabels = {};
+monthStartDays.forEach((day, idx) => {
+    xLabels[day] = monthLabels[idx];
+});
+
+new Chart(ctx,{
+    type:'line',
+    data:{
+        labels: days,
+        datasets:[
+            {
+                label: 'Потребление с ADL, кВт·ч',
+                data: dailyWithADL,
+                borderColor:'rgba(75,192,192,1)',
+                backgroundColor:'rgba(135,206,250,0.2)',
+                fill:true,
+                tension:0.2,
+                pointRadius:2,
+                pointHoverRadius:4
+            },
+            {
+                label: 'Потребление без ADL, кВт·ч',
+                data: dailyWithoutADL,
+                borderColor:'rgba(192,75,75,1)',
+                backgroundColor:'rgba(255,200,200,0.2)',
+                fill:true,
+                tension:0.2,
+                pointRadius:2,
+                pointHoverRadius:4
+            }
+        ]
+    },
+    options:{
+        responsive:true,
+        plugins:{
+            legend:{display:true},
+            title:{display:true,text:'Годовое потребление светильников по дням (кВт·ч)'}
+        },
+        scales:{
+            x:{ 
+                title:{display:true,text:'Месяц'},
+                ticks:{
+                    callback: function(value,index){
+                        // если день — начало месяца, показываем подпись, иначе пусто
+                        return xLabels[this.getLabelForValue(value)] || '';
+                    },
+                    maxRotation:0,
+                    autoSkip:false
+                }
+            },
+            y:{ title:{display:true,text:'Потребление, кВт·ч'} }
+        }
+    }
+});
+}
+
 </script>
 
 </body>
