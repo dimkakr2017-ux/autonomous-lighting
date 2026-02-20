@@ -202,25 +202,70 @@ tr:hover td {
 <button onclick="showNASATable()">Показать первые 48 часов</button>
 <button onclick="downloadNASAData()">Скачать все данные NASA CSV</button>
 
-
+<div id="loadingOverlay" style="
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.4);
+    z-index:9999;
+    align-items:center;
+    justify-content:center;
+">
+    <div style="
+        background:white;
+        padding:30px 50px;
+        border-radius:12px;
+        font-size:18px;
+        font-weight:600;
+        box-shadow:0 10px 25px rgba(0,0,0,0.2);
+    ">
+        ⏳ Загрузка данных… Подождите
+    </div>
+</div>
 <script>
 let nasaData=[];
+function showLoading(){
+    document.getElementById("loadingOverlay").style.display = "flex";
+}
 
+function hideLoading(){
+    document.getElementById("loadingOverlay").style.display = "none";
+}
 // ---------- Загрузка координат города ----------
 async function loadCityCoordinates(){
     const city = document.getElementById("city").value.trim();
     if(!city){ alert("Введите название города"); return; }
-    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(city)}`;
+
+    showLoading(); // 🔥 показываем окно
+
     try{
+        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(city)}`;
         const response = await fetch(url);
         const data = await response.json();
-        if(data.length===0){ alert("Город не найден"); return; }
+
+        if(data.length===0){ 
+            hideLoading();
+            alert("Город не найден"); 
+            return; 
+        }
+
         const lat=parseFloat(data[0].lat);
         const lon=parseFloat(data[0].lon);
 
         await loadNasaHourlyData(lat, lon, 2019);
+
+        hideLoading(); // 🔥 скрываем окно
+
         alert(`Координаты города ${city}: широта ${lat}, долгота ${lon}\nДанные NASA за 2019 год загружены (8760 часов)`);
-    }catch(e){ alert("Ошибка при получении координат города"); console.error(e);}
+
+    }catch(e){
+        hideLoading();
+        alert("Ошибка при получении координат города");
+        console.error(e);
+    }
 }
 
 // ---------- Получение почасовой NASA ----------
